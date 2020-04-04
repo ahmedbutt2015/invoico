@@ -1,0 +1,20 @@
+{
+  "short_name": "Slimvoice",
+  "name": "Slimvoice",
+  "icons": [
+    {
+      "src": "img/icon_android_192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "img/icon_android_512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/dashboard",
+  "background_color": "#0D28F2",
+  "display": "standalone",
+  "theme_color": "#0D28F2"
+}
