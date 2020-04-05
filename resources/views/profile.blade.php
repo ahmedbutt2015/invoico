@@ -62,6 +62,9 @@
                         <div class="col-8">
                             <h3 class="mb-0">Edit profile </h3>
                         </div>
+                        <div class="col-4 text-right">
+                            <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#plan">Payment Plan</button>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -179,6 +182,40 @@
                             </div>
                         </div>
                         <hr class="my-4" />
+                        <!-- Credit Card Details -->
+                        <h6 class="heading-small text-muted mb-4">Credit Card Details</h6>
+                        <div class="pl-lg-4">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label" for="card">Card Number</label>
+                                        <input type="text" name="card_number" value="{{$user->card_number}}" id="card" class="form-control" placeholder="Credit Card Number">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label" for="input-cvc">CVC</label>
+                                        <input type="text" id="input-cvc" class="form-control" placeholder="CVC" name="cvc" value="{{$user->cvc}}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label" for="month">Expiry Month</label>
+                                        <input type="text" name="ex_month" value="{{$user->ex_month}}" id="month" class="form-control" >
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label" for="year">Expiry Year</label>
+                                        <input type="text" name="ex_year" value="{{$user->ex_year}}" id="year" class="form-control" >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr class="my-4" />
+
                         <!-- Description -->
                         <h6 class="heading-small text-muted mb-4">About me</h6>
                         <div class="pl-lg-4">
@@ -197,4 +234,52 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="plan" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <form action="{{URL()->to("update-plan")}}" method="post">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Payment Plan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label for="plan">Plan</label>
+                                <select name="plan_id" id="plan" class="form-control">
+                                    @foreach(Plan::all() as $plan)
+                                        <option value="{{$plan->id}}" {{$plan->id == $user->plan_id ? "selected" : ''}}>{{$plan->title}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    @csrf
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+@section('script')
+    <script>
+        $("#month").datepicker({
+            format: "mm",
+            minViewMode: 1,
+            maxViewMode: 1
+        });
+        $("#year").datepicker({
+            format: "yyyy",
+            minViewMode: 2,
+            maxViewMode: 2,
+        });
+    </script>
 @endsection

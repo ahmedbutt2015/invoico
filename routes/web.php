@@ -19,10 +19,29 @@ Route::group(['middleware' => 'guest'], function () {
     });
 
 
-    Route::get('/register', function () {
-        return view('register');
+    Route::get('/plans', function () {
+        $plans = Plan::all();
+        return view('plans',compact("plans"));
     });
 
+    Route::get('/payment-{plan}', function (\App\Plan $plan) {
+        return view('payment',compact('plan'));
+    });
+
+    Route::get('/register-{plan}', function (\App\Plan $plan) {
+        $token = request()->get("_token",'');
+        if ($plan->id != 1) {
+            $result = \App\Payment::checkPayment($token);
+            if ($result) {
+                return view('register', compact('token'));
+            } else {
+                return redirect("/payment-".$plan->id);
+            }
+        }
+        return view('register', compact('token'));
+    });
+
+    Route::post('/payment-{plan}', 'AuthController@postPayment');
     Route::post('/register', 'AuthController@postRegister');
     Route::post('/login', 'AuthController@postLogin');
 
@@ -112,6 +131,10 @@ Route::group(['middleware' => 'auth'], function () {
         $user = \App\User::find(auth()->id());
         return view('profile',compact('user'));
     });
+    Route::get('/payments', function () {
+        $payments = \App\Payment::where("user_id",auth()->id())->get();
+        return view('my-payments',compact('payments'));
+    });
     Route::get('/dashboard', function () {
         $invoices = \App\Invoice::all();
 
@@ -121,6 +144,7 @@ Route::group(['middleware' => 'auth'], function () {
         return view('support');
     });
     Route::post('/profile', 'AuthController@update');
+    Route::post('/update-plan', 'AuthController@updatePlan');
     Route::post('/new_invoice', 'InvoiceController@add');
     Route::post('/add_client', 'InvoiceController@add_client');
     Route::post('/edit_client', 'InvoiceController@edit_client');

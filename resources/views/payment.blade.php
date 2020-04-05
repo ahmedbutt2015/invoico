@@ -16,6 +16,7 @@
 	<link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+	<link rel="stylesheet" type="text/css" href="{{asset("assets/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css")}}">
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="css/util.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
@@ -30,55 +31,46 @@
 					<img src="images/img-01.png" alt="IMG">
 				</div>
 
-				<form action="/register" class="login100-form validate-form" method="post">
+				<form class="login100-form validate-form" method="post">
 					<span class="login100-form-title">
-						Member Register
+						Enter Payment Details
 					</span>
 
 					{{csrf_field()}}
-                    <input type="hidden" name="registration_token" value="{{$token}}">
-					<div class="wrap-input100 validate-input" data-validate = "First name is required">
-						<input class="input100" type="text" name="fname" placeholder="First Name">
+					<div class="wrap-input100 validate-input" data-validate = "Card Number is required">
+						<input class="input100" type="text" name="card" placeholder="Card Number">
 						<span class="focus-input100"></span>
 						<span class="symbol-input100">
-							<i class="fa fa-user" aria-hidden="true"></i>
+							<i class="fa fa-credit-card" aria-hidden="true"></i>
 						</span>
 					</div>
 
-					<div class="wrap-input100 validate-input" data-validate = "Last name is required">
-						<input class="input100" type="text" name="lname" placeholder="Last Name">
-						<span class="focus-input100"></span>
-						<span class="symbol-input100">
-							<i class="fa fa-user" aria-hidden="true"></i>
-						</span>
-					</div>
-
-					<div class="wrap-input100 validate-input" data-validate = "Valid email is required: ex@abc.xyz">
-						<input class="input100" type="text" name="email" placeholder="Email">
-						<span class="focus-input100"></span>
-						<span class="symbol-input100">
-							<i class="fa fa-envelope" aria-hidden="true"></i>
-						</span>
-					</div>
-					<div class="wrap-input100 " >
-						<input class="input100" type="text" name="phone" placeholder="Phone number">
-						<span class="focus-input100"></span>
-						<span class="symbol-input100">
-							<i class="fa fa-user" aria-hidden="true"></i>
-						</span>
-					</div>
-					<div class="wrap-input100 validate-input" data-validate = "Password is required">
-						<input class="input100" type="password" name="password" placeholder="Password">
+					<div class="wrap-input100 validate-input" data-validate = "CVC is required">
+						<input class="input100" type="text" name="cvc" placeholder="CVC">
 						<span class="focus-input100"></span>
 						<span class="symbol-input100">
 							<i class="fa fa-lock" aria-hidden="true"></i>
 						</span>
 					</div>
 
-					<div class="wrap-input100 validate-input" data-validate = "Terms is required">
-                        <b>Accept terms and conditions.</b><br>
-                        I accept: <input  class="input" type="checkbox" value="0" name="terms">
+					<div class="wrap-input100 validate-input" data-validate = "Month is requried">
+						<input class="input100 month" id="month" type="text" name="month" placeholder="Expiry Month">
+						<span class="focus-input100"></span>
+						<span class="symbol-input100">
+							<i class="fa fa-calendar" aria-hidden="true"></i>
+						</span>
 					</div>
+
+                    <div class="wrap-input100 validate-input" data-validate = "Year is requried">
+						<input class="input100 year" id="year" type="text" name="year" placeholder="Expiry Year">
+						<span class="focus-input100"></span>
+						<span class="symbol-input100">
+							<i class="fa fa-calendar" aria-hidden="true"></i>
+						</span>
+					</div>
+
+
+
                     @if(isset($errors) && count($errors->all()))
                         <div class="errors alert alert-dismissible fade show alert-danger" role="alert">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -88,6 +80,14 @@
                                 <div>{{$error}}</div>
                             @endforeach
 
+                        </div>
+                    @endif
+                    @if(isset($msg) && $msg != '')
+                        <div class="errors alert alert-dismissible fade show alert-danger" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                                <div>{{$msg}}</div>
                         </div>
                     @endif
 					<div class="container-login100-form-btn">
@@ -118,12 +118,23 @@
 	<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
 <!--===============================================================================================-->
 	<script src="vendor/select2/select2.min.js"></script>
+	<script src="{{asset("assets/vendor/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js")}}"></script>
 <!--===============================================================================================-->
 	<script src="vendor/tilt/tilt.jquery.min.js"></script>
 	<script >
 		$('.js-tilt').tilt({
 			scale: 1.1
-		})
+		});
+        $("#month").datepicker({
+            format: "mm",
+            minViewMode: 1,
+            maxViewMode: 1
+        });
+        $("#year").datepicker({
+            format: "yyyy",
+            minViewMode: 2,
+            maxViewMode: 2,
+        });
 	</script>
 <!--===============================================================================================-->
 	<script src="js/main.js"></script>

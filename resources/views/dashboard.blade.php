@@ -37,6 +37,8 @@
     <link rel="stylesheet" type="text/css" href="css/app.css">
 
     <link rel="stylesheet" type="text/css" href="css/invoice.css">
+    <link rel="stylesheet" type="text/css" href="{{asset("assets/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css")}}">
+
     <script>
         function disableSubmitters() {
             document.querySelectorAll('button:not([name]), input[type=reset], input[type=button]').forEach(function (b) {
@@ -236,6 +238,12 @@
                         <a class="nav-link {{$a == 'Profile' ? 'active' : ''}}" href="{{url('/profile')}}">
                             <i class="ni ni-single-02 text-menu"></i>
                             <span class="nav-link-text">Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{$a == 'Payment' ? 'active' : ''}}" href="{{url('/payments')}}">
+                            <i class="ni ni-credit-card text-menu"></i>
+                            <span class="nav-link-text">Payments</span>
                         </a>
                     </li>
                     <li class="nav-item">
@@ -565,6 +573,7 @@
         }
     });
 </script>
+<script src="{{asset("assets/vendor/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js")}}"></script>
 
 @yield('script')
 </body>
