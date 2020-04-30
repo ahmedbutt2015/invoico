@@ -36,30 +36,38 @@ class AuthController extends Controller
             "number" => $data["phone"],
             "password" => Hash::make($data["password"])
         ];
-        $token = $request->get("registration_token");
-        $record = DB::table("payment_for_registration")->where("token", $token)->first();
-        if ($record) {
-            $user_insert['card_number'] = $record->card;
-            $user_insert['cvc'] = $record->cvc;
-            $user_insert['ex_month'] = $record->month;
-            $user_insert['ex_year'] = $record->year;
-            $user_insert['plan_id'] = $record->plan_id;
-        } else {
-            $user_insert['plan_id'] = 1;
-        }
+//        $token = $request->get("registration_token");
+//        $record = DB::table("payment_for_registration")->where("token", $token)->first();
+//        if ($record) {
+//            $user_insert['card_number'] = $record->card;
+//            $user_insert['cvc'] = $record->cvc;
+//            $user_insert['ex_month'] = $record->month;
+//            $user_insert['ex_year'] = $record->year;
+//            $user_insert['plan_id'] = $record->plan_id;
+//        } else {
+//        }
+        $user_insert['plan_id'] = 1;
+
         $user = User::create($user_insert);
 
-        if ($record) {
-            $payment = [
-                "amount" => $record->amount,
-                "card_number" => $record->card,
-                "cvc" => $record->cvc,
-                "month" => $record->month,
-                "year" => $record->year,
-            ];
-            Payment::AddPayment($payment, $user->id);
-            DB::table("payment_for_registration")->where("token", $token)->delete();
-        }
+        \App\Notification::create([
+            'user_id' => 7,
+            'title' => 'New User Registered',
+            'data' => $user->fname . ' registered',
+            'url' => null
+        ]);
+
+//        if ($record) {
+//            $payment = [
+//                "amount" => $record->amount,
+//                "card_number" => $record->card,
+//                "cvc" => $record->cvc,
+//                "month" => $record->month,
+//                "year" => $record->year,
+//            ];
+//            Payment::AddPayment($payment, $user->id);
+//            DB::table("payment_for_registration")->where("token", $token)->delete();
+//        }
         Auth::login($user);
         return redirect("/");
     }
@@ -134,29 +142,45 @@ class AuthController extends Controller
         $amount = $plan->amount;
         $plan_id = $plan->id;
         $data = $request->all();
-        $result = Payment::payStripe($data, $amount, "Registration Payment to " . config('app.name'), function () use ($data, $plan_id, $amount) {
-            $token = Str::random(60);
+        if($plan_id != 1){
 
-            $result = DB::table("payment_for_registration")->insert([
-                "token" => $token,
-                "plan_id" => $plan_id,
+            $result = Payment::payStripe($data, $amount, "Registration Payment to " . config('app.name'), function () use ($data, $plan_id, $amount) {
+                $token = Str::random(60);
+
+                $result = DB::table("payment_for_registration")->insert([
+                    "token" => $token,
+                    "plan_id" => $plan_id,
+                    "amount" => $amount,
+                    "status" => "paid",
+                    "card" => $data['card'],
+                    "cvc" => $data['cvc'],
+                    "month" => $data['month'],
+                    "year" => $data['year'],
+                ]);
+                if ($result) {
+                    return $token;
+                } else {
+                    return false;
+                }
+            });
+        }
+
+        if ($plan_id == 1 || ($result && $result['type'] == "paid")) {
+            $payment = [
                 "amount" => $amount,
-                "status" => "paid",
-                "card" => $data['card'],
+                "plan_id" => $plan_id,
+                "card_number" => $data['card'],
                 "cvc" => $data['cvc'],
                 "month" => $data['month'],
                 "year" => $data['year'],
-            ]);
-            if ($result) {
-                return $token;
-            } else {
-                return false;
-            }
-        });
-        if ($result && $result['type'] == "paid") {
-            return redirect("register-" . $plan_id . "?_token=" . $result['token']);
+            ];
+            Payment::AddPayment($payment, auth()->id());
+            $user = User::find(auth()->id());
+            $user->plan_id = $plan_id;
+            $user->save();
+            return redirect("/")->withErrors('Congratulation ! Your profile has been updated to '.$plan->title.'.');
         } else {
-            return back()->with('msg', $result['msg']);
+            return back()->withErrors($result['msg']);
         }
     }
 
@@ -165,5 +189,19 @@ class AuthController extends Controller
         $user->plan_id = $request->plan_id;
         $user->save();
         return back();
+    }
+
+    public function endPlan (Request $request) {
+        $user = User::find(auth()->id());
+        $user->plan_id = null;
+        $user->save();
+
+        \App\Notification::create([
+            'user_id' => 7,
+            'title' => 'User cancel subscription',
+            'data' => $user->email . ' cancel their subscription',
+            'url' => null
+        ]);
+        return back()->withErrors('Congratulation ! Your Subscription has been canceled successfully.');;
     }
 }

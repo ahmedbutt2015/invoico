@@ -1,75 +1,52 @@
-@extends('dashboard',['a' => 'New Invoice'])
+@extends('admin.dashboard',['a' => 'View Invoice'])
 @section('body')
     <div class="row">
         <div class="app">
-            <form id="invoice" enctype="multipart/form-data" method="post" >
 
-            <div class="flex flex--wrap flex--justify-space-between m-v-md  m-v-xl--desktop" id="invoice__buttons">
+            <div class="flex flex--wrap flex--justify-space-between m-v-md m-v-lg--tablet m-v-xl--desktop" id="invoice__buttons">
 
 
                 <a href="javascript:window.print()" >
                     <div class="button button--blue-inverted m-v-sm">
                         <!--                <img src="img/icon_file_sm.svg" width="10" height="10" alt="file" class="m-r-sm">-->
-                        <span style="color: #5354CE">Print</span>
-                    </div>
-                </a>
-
-                <a href="javascript:window.print()" >
-                    <div class="button button--blue-inverted m-v-sm">
-                        <!--                <img src="img/icon_file_sm.svg" width="10" height="10" alt="file" class="m-r-sm">-->
-                        <span style="color: #5354CE">Preview</span>
+                        <span>Print</span>
                     </div>
                 </a>
 
 
-
-                <div class="button button--blue-inverted m-v-sm">
-                    <select name="client_id" class="" id="clients">
-                        <option value="">Select client</option>
-                        @foreach($clients as $client)
-                            <option value="{{$client->id}}"
-                                    data-name="{{$client->name}}"
-                                    data-num="{{$client->num}}"
-                                    data-address="{{$client->address}}"
-                                    data-cname="{{$client->cname}}"
-                                    data-email="{{$client->email}}"
-                                    data-phone="{{$client->phone}}"
-                            >{{$client->name}}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <a data-toggle="modal" data-target="#addClient" >
-                    <div class="button button--blue-inverted m-v-sm">
-                        <!--                <img src="img/icon_file_sm.svg" width="10" height="10" alt="file" class="m-r-sm">-->
-                        <span style="color: #5354CE">+ add new client</span>
-                    </div>
-                </a>
                 <div style="flex: 1 0 10px;"></div>
+                @if(!$invoice->final)
 
                 <button form="invoice__delete" class="invoice__deleteImageFlip button button--blue-inverted button--red-inverted-hover m-v-sm">
                     <!--            <img src="img/icon_delete_sm_blue.svg" width="10" height="10" alt="x" class="m-r-sm">-->
                     <!--            <img src="img/icon_delete_sm_red.svg" width="10" height="10" alt="x" class="m-r-sm display&#45;&#45;none">-->
-                    <span style="color: #5354CE">Delete</span>
+                    <span>Delete</span>
                 </button>
+                <form class="display--none" id="invoice__delete" action="/invoices/104/delete" method="post" onsubmit="invoiceDeletePrompt(event);" autocomplete="off">
+                    <input type="hidden" name="csrf" value="7777d3f9-3d56-41ff-82b0-b6896fef5359">
+                </form>
+                @endif
             </div>
 
-                <div class="card bg-white display--block m-t-md m-t-lg--tablet m-t-xl--desktop m-b-md m-b-lg--tablet" >
+            <form id="invoice" method="post" class="card bg-white display--block m-t-md m-t-lg--tablet m-t-xl--desktop m-b-md m-b-lg--tablet" onsubmit="disableSubmitters();">
                 {{csrf_field()}}
-                <div class="invoice__titles m-v-md ">
+                <input type="hidden" name="id" value="{{$invoice->id}}">
+                <div class="invoice__titles m-v-md m-v-lg--tablet">
 {{--
-                    <div class="m-v-md ">
-                        <input type="file" name="logo"  class="form-control" id="imgInp">
+                    <div class="row">
+                        @if($invoice->logo)
+                            <div class="col-lg-6">
+                                <img src="{{url('/images/user/'.$invoice->logo)}}" alt="Image placeholder" class="card-img-top">
+                            </div>
+                        @endif
                     </div>
-                    <div class="m-v-md ">
-                        <img src="" height="100px" width="100px" alt="" id="blah">
-                    </div>--}}
-                    <div class="m-v-md ">
-                        <input type="text" name="invoice_num" placeholder="" value="Invoice {{\App\Invoice::where('user_id',auth()->id())->count() + 1}}" class="font-size--header blue ">
+--}}
+                    <div class="m-v-md m-v-lg--tablet">
+                        <input type="text" name="invoice_num" placeholder="" value="{{$invoice->data->invoice_num}}" class="font-size--header blue ">
                     </div>
 
                     <div>
-                        <input id="invoice__description" class="invoice__description invoice__description--input inputBorder p-sm ellipsis" type="text" name="description" value="" placeholder="Project / Description" maxlength="255" autocomplete="off"
+                        <input id="invoice__description" class="invoice__description invoice__description--input inputBorder p-sm ellipsis" type="text" name="description" value="{{$invoice->data->description}}" placeholder="Project / Description" maxlength="255" autocomplete="off"
                                onkeypress="disableEnterSubmit(event);">
                     </div>
 
@@ -79,7 +56,7 @@
                     <div class="m-v-md">
 
                         <div class="gray m-r-sm display--inline--tablet">Issued</div>
-                        <input id="invoice__dateIssued" class="inputBorder p-sm" name="date_issued" type="date" placeholder="yyyy-mm-dd" value="{{date('Y-m-d')}}" autocomplete="off" required onkeypress="disableEnterSubmit(event);"
+                        <input id="invoice__dateIssued" class="inputBorder p-sm" name="date_issued" type="date" placeholder="yyyy-mm-dd" value="{{$invoice->data->date_issued ? $invoice->data->date_issued : date('Y-m-d')}}" autocomplete="off" required onkeypress="disableEnterSubmit(event);"
                                class="display--block display--inline--tablet">
 
                     </div>
@@ -87,60 +64,59 @@
 
                     <div class="m-v-md">
                         <div class="gray m-r-sm display--inline--tablet">Due</div>
-                        <input id="invoice__dateDue" class="inputBorder p-sm" name="date_due" type="date" placeholder="yyyy-mm-dd" autocomplete="off" onkeypress="disableEnterSubmit(event);">
+                        <input id="invoice__dateDue" class="inputBorder p-sm" name="date_due" value="{{$invoice->data->date_due ? $invoice->data->date_due : date('Y-m-d')}}" type="date" placeholder="yyyy-mm-dd" autocomplete="off" onkeypress="disableEnterSubmit(event);">
                     </div>
 
                 </div>
 
                 <div class="clear"></div>
 
-                <h4 style="color: #4E4E4E;margin-bottom: 10px">Who are you invoicing?</h4>
 
                 <div class="flex flex--start">
 
-                    <div class="m-v-md ">
-
-                        <input type="text" id="name" name="client" placeholder="Company Name" class="">
+                    <div class="m-v-md m-v-lg--tablet">
+{{--                        <label for="">Company Name</label>--}}
+                        <input type="text" id="name"  name="client" placeholder="Company Name" value="{{$invoice->data->client}}" class="">
                     </div>
                 </div>
                 <div class="flex flex--start">
 
-                    <div class="m-v-md ">
+                    <div class="m-v-md m-v-lg--tablet">
 {{--                        <label for="">Registration Number</label>--}}
 
-                        <input type="text" id="num" name="reg_num" placeholder="Registration Number" class="">
+                        <input type="text"  id="num" name="reg_num" placeholder="Registration Number" value="{{$invoice->data->reg_num}}" class="">
                     </div>
                 </div>
                 <div class="flex flex--start">
 
-                    <div class="m-v-md ">
+                    <div class="m-v-md m-v-lg--tablet">
 {{--                        <label for="">Billing Address</label>--}}
 
-                        <input type="text" id="address" name="address" placeholder="Billing Address" class="">
+                        <input type="text" id="address"  name="address" placeholder="Billing Address" value="{{$invoice->data->address}}" class="">
                     </div>
                 </div>
                 <div class="flex flex--start">
 
-                    <div class="m-v-md ">
+                    <div class="m-v-md m-v-lg--tablet">
 {{--                        <label for="">Contact Name</label>--}}
 
-                        <input type="text" id="cname" name="contact" placeholder="Contact Name" class="">
+                        <input type="text" id="cname"  name="contact" placeholder="Contact Name" value="{{$invoice->data->contact}}" class="">
                     </div>
                 </div>
                 <div class="flex flex--start">
 
-                    <div class="m-v-md ">
+                    <div class="m-v-md m-v-lg--tablet">
 {{--                        <label for="">Company Email</label>--}}
 
-                        <input type="text" id="email" name="email" placeholder="Email" class="">
+                        <input type="text"  id="email" name="email" placeholder="Email" value="{{$invoice->data->email}}" class="">
                     </div>
                 </div>
                 <div class="flex flex--start">
 
-                    <div class="m-v-md ">
+                    <div class="m-v-md m-v-lg--tablet">
 {{--                        <label for="">Company Phone</label>--}}
 
-                        <input type="text" id="phone" name="phone" placeholder="Phone" class="">
+                        <input type="text"  id="phone" name="phone" placeholder="Phone"  value="{{$invoice->data->phone}}" class="">
                     </div>
                 </div>
 
@@ -154,6 +130,31 @@
                             class="expense__colTotal display--table-cell right">Total</span>
                     </li>
                 </ul>
+                <div>
+                    <?php
+                    ?>
+                    <script>  expenseData = [
+                        ];
+                         </script>
+                    @if(isset($invoice->data->tax1percent) )
+                        <script>
+                            tax1Data = {
+                                percent: "{{$invoice->data->tax1percent }}",
+                                description: "{{$invoice->data->tax1description}}",
+                            };</script>
+                    @endif
+                    @foreach($invoice->data->exp_desc as $desc)
+                        <script>
+                            expenseData.push({
+                                description: "{{$desc}}",
+                                quantity: "{{$invoice->data->exp_quan[$loop->index]}}",
+                                value: "{{$invoice->data->exp_val[$loop->index]}}"
+                                },
+                            )
+                        </script>
+                    @endforeach
+
+                </div>
 
                 <div id="expenses">
 
@@ -161,9 +162,9 @@
 
                 <div class="clear"></div>
 
-                <div class="m-v-md ">
+                <div class="m-v-md m-v-lg--tablet">
 
-                    <textarea id="invoice__notes" name="notes" class="textarea--v p-sm borderBox fullWidth" placeholder="Notes..." autocomplete="off" maxlength="2000" oninput="autosizeTextarea.bind(this, event)();"></textarea>
+                    <textarea id="invoice__notes" name="notes"  class="textarea--v p-sm borderBox fullWidth" placeholder="Notes..." autocomplete="off" maxlength="2000" oninput="autosizeTextarea.bind(this, event)();">{{$invoice->data->notes}}</textarea>
 
                 </div>
 
@@ -453,21 +454,68 @@
                     </div>
 
 
-                    <div class="flex__grow details__gutter"></div>
+                    <div class="flex__grow details__gutter" style="display: none">
 
-                    <div class="details__column flex__basis0 flex__grow flex flex--baseline invoice__submitContainer">
-                        <input type="reset" id="invoice__cancelSubmit" class="invoice_submit_button button button--gray-inverted gray display--none m-r-md" value="Cancel">
-                        <div class="flex__grow"></div>
-                        <button  name="submit" value="draft"   class="button button--blue-inverted m-v-sm invoice_submit_button" type="submit" style="margin-right:10px;color:#5354CE">Save as Draft</button>
-                        <button id="invoice__submit" class="button button--blue right invoice_submit_button"  name="submit" value="send" type="submit" style="background-color: #5354CE !important;">Send to Spacedive</button>
+                        <div class="details__column flex__basis0 flex__grow flex flex--baseline invoice__submitContainer">
+                            <input type="reset" id="invoice__cancelSubmit" class="button button--gray-inverted gray display--none m-r-md invoice_submit_button" value="Cancel">
+                            <div class="flex__grow"></div>
+                            <button id="invoice_ubmit" class="button button--blue right invoice_submit_button" name="submit" value="draft" form="invoice" type="submit">Save as draft</button>
+                            <button id="invoice__submit" class="button button--blue right invoice_submit_button"  name="submit" value="send" form="invoice" type="submit">Send to Spacedive</button>
+                        </div>
+
                     </div>
 
 
                 </section>
 
-                </div>
             </form>
 
+            <section id="invoice__details" class="flex flex--wrap flex--justify-space-between">
+                <div class="details__column flex__grow flex__basis0 m-b-lg">
+                    <div class="details__sendArea p-md m-b-lg">
+                        <div class="flex flex--center">
+
+                <span class="flex__grow">
+                    <span>Draft</span>
+                    <!--                    <img class="crisp m-l-sm" src="img/icon_lock.svg">-->
+                </span>
+                            {{--                        <label class="button button--blue m-l-md" for="sendModal_show">Send</label>--}}
+
+                        </div>
+
+
+                    </div>
+                </div>
+
+                <div class="details__gutter"></div>
+                {{--<div class="details__column flex__grow flex__basis0 m-b-lg bg-almost-white">
+                    <label for="payment_showCreateForm" class="pointer">
+                        <div class="flex m-b-sm">
+                            <span class="flex__grow gray">Payments</span>
+                            <img src="img/icon_add.svg" class="crisp">
+                        </div>
+                    </label>
+                    <hr/>
+                    <ul class="payments__list position--relative">
+                        <input type="checkbox" id="payment_showCreateForm" class="display--none" autocomplete="off">
+
+                        <li class="payment payment--form p-v-sm">
+                            <form method="post" action="/invoices/104/payments" class="flex" onsubmit="disableSubmitters(); handlePaymentSubmit(event);" autocomplete="off">
+                                <input type="hidden" name="csrf" value="7777d3f9-3d56-41ff-82b0-b6896fef5359">
+                                <input id="payment__input" type="number" min="0" max="99999999" step="0.01" placeholder="Amount" class="font-mono flex__grow" name="value" autocomplete="off" inputmode="numeric">
+                                <input type="date" name="date" autocomplete="off" placeholder="yyyy-mm-dd">
+                                <button class="button button--blue">Add</button>
+                            </form>
+                        </li>
+
+                    </ul>
+                    <div class="flex m-v-md">
+
+                        <span class="flex__grow right gray">No payments posted</span>
+
+                    </div>
+                </div>--}}
+            </section>
 
 
             <div>
@@ -530,64 +578,7 @@
                 </div>
             </div>
 
-            <script>
-                const b = document.getElementById('invoice_send_button');
-                const checkboxes = document.querySelectorAll('.sendModal__checkbox');
-
-                function determineChecked() {
-                    let checked = 0;
-                    checkboxes.forEach(function (el) {
-                        if (el.checked) checked++;
-                    });
-                    if (checked > 0) {
-                        b.disabled = false;
-                    } else {
-                        b.disabled = true;
-                    }
-                }
-
-                checkboxes.forEach(function (el) {
-                    el.addEventListener('change', determineChecked);
-                })
-            </script>
-
 
         </div>
-
     </div>
-@endsection
-@section('script')
-    <script>
-        $("#clients").change(function () {
-            $("#name").val($(this).find(':selected').data('name'))
-            $("#num").val($(this).find(':selected').data('num'))
-            $("#address").val($(this).find(':selected').data('address'))
-            $("#cname").val($(this).find(':selected').data('cname'))
-            $("#email").val($(this).find(':selected').data('email'))
-            $("#phone").val($(this).find(':selected').data('phone'))
-        })
-
-
-        $("#invoice__submit").click(function(e) {
-            if(!confirm('Are you sure you want to send this invoice.')) {
-                e.stopPropagation();
-                return false;
-            }
-        });
-        function readURL(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-
-                reader.onload = function(e) {
-                    $('#blah').attr('src', e.target.result);
-                }
-
-                reader.readAsDataURL(input.files[0]); // convert to base64 string
-            }
-        }
-
-        $("#imgInp").change(function() {
-            readURL(this);
-        });
-    </script>
 @endsection

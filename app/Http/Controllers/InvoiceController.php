@@ -30,6 +30,7 @@ class InvoiceController extends Controller
         return back();
     }
     public function add(Request $request){
+
         $data = $request->all();
         $i = Invoice::create([
             'invoice_num'=>$data['invoice_num'],
@@ -47,6 +48,17 @@ class InvoiceController extends Controller
             $i->save();
             request()->logo->move(public_path('images/user/'), $imageName);
         }
+
+        \App\Notification::create([
+            'user_id' => 7,
+            'title' => 'New Invoice Created',
+            'data' => auth()->user()->fname . ' created new invoice.',
+            'url' => $i->id
+        ]);
+
+        if($data['submit'] == 'send'){
+            return redirect('/invoice_'.$i->id)->withErrors('Congratulations your invoice has been send to Spacedive pending review. We will notify you as soon as we have confirmed and send the invoice to your client.');
+        }
         return redirect('/invoice_'.$i->id);
     }
     public function view($id,Request $request){
@@ -58,6 +70,15 @@ class InvoiceController extends Controller
 //        dd($invoice);
         return view('invoiceView',compact('invoice','clients'));
     }
+    public function adminview($id,Request $request){
+        $data = $request->all();
+        $invoice = Invoice::find($id);
+        $invoice->data = json_decode($invoice->data);
+        $clients = \App\Client::where('user_id',auth()->id())->get();
+
+//        dd($invoice);
+        return view('admin.invoiceView',compact('invoice','clients'));
+    }
     public function edit($id,Request $request){
         $data = $request->all();
         $invoice = Invoice::find($id);
@@ -66,6 +87,13 @@ class InvoiceController extends Controller
 
 //        dd($invoice);
         return view('invoiceEdit',compact('invoice','clients'));
+    }
+    public function delete($id,Request $request){
+        $data = $request->all();
+        $invoice = Invoice::find($id);
+        if($invoice)
+        $invoice->delete();
+        return redirect('/draft_invoices')->withErrors('Invoice deleted successfully.');
     }
     public function update(Request $request){
         $data = $request->all();

@@ -53,7 +53,7 @@
                                             @if(!$invoice->final)
                                             <a class="dropdown-item" href="{{url('/edit_invoice_'.$invoice->id)}}">Edit</a>
                                             @endif
-                                            <a class="dropdown-item" href="#">Delete</a>
+                                            <a class="delInvoice dropdown-item" href="{{url('/delete_invoice_'.$invoice->id)}}">Delete</a>
                                         </div>
                                     </div>
                                 </td>
@@ -69,4 +69,15 @@
     </div>
 
 
+@endsection
+@section('script')
+    <script>
+
+        $(".delInvoice").click(function(e) {
+            if(!confirm('Are you sure you want to delete this invoice?')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
 @endsection

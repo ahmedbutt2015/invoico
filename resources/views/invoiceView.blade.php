@@ -22,13 +22,14 @@
                     <!--            <img src="img/icon_delete_sm_red.svg" width="10" height="10" alt="x" class="m-r-sm display&#45;&#45;none">-->
                     <span>Delete</span>
                 </button>
-                <form class="display--none" id="invoice__delete" action="/invoices/104/delete" method="post" onsubmit="invoiceDeletePrompt(event);" autocomplete="off">
+                <form class="display--none" id="invoice__delete" action="/delete_invoice_{{$invoice->id}}" method="post" onsubmit="invoiceDeletePrompt(event);" autocomplete="off">
+                    {{csrf_field()}}
                     <input type="hidden" name="csrf" value="7777d3f9-3d56-41ff-82b0-b6896fef5359">
                 </form>
                 @endif
             </div>
 
-            <form id="invoice" method="post" class="card bg-white display--block m-t-md m-t-lg--tablet m-t-xl--desktop m-b-md m-b-lg--tablet" onsubmit="disableSubmitters();">
+            <div id="invoice" method="post" class="card bg-white display--block m-t-md m-t-lg--tablet m-t-xl--desktop m-b-md m-b-lg--tablet" onsubmit="disableSubmitters();">
                 {{csrf_field()}}
                 <input type="hidden" name="id" value="{{$invoice->id}}">
                 <div class="invoice__titles m-v-md m-v-lg--tablet">
@@ -468,7 +469,7 @@
 
                 </section>
 
-            </form>
+            </div>
 
             <section id="invoice__details" class="flex flex--wrap flex--justify-space-between">
                 <div class="details__column flex__grow flex__basis0 m-b-lg">

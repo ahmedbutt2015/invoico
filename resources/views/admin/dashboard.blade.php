@@ -17,13 +17,14 @@
 <html>
 
 <head>
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Start your development with a Dashboard for Bootstrap 4.">
     <meta name="author" content="Creative Tim">
-    <title>{{$a}} - Spacedive</title>
+    <title>Argon Dashboard - Free Dashboard for Bootstrap 4</title>
     <!-- Favicon -->
-    <link rel="icon" href="/images/icons/favi.png" type="image/png">
+    <link rel="icon" href="assets/img/brand/favicon.png" type="image/png">
     <!-- Fonts -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700">
     <!-- Icons -->
@@ -38,6 +39,7 @@
 
     <link rel="stylesheet" type="text/css" href="css/invoice.css">
     <link rel="stylesheet" type="text/css" href="{{asset("assets/vendor/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css")}}">
+    <script src='https://kit.fontawesome.com/a076d05399.js'></script>
 
     <script>
         function disableSubmitters() {
@@ -205,56 +207,20 @@
                 <!-- Nav items -->
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link  {{$a == 'Home' ? 'active' : ''}}" href="{{url('/')}}">
+                        <a class="nav-link  {{$a == 'Home' ? 'active' : ''}}" href="{{url('/admin')}}">
                             <i class="ni ni-tv-2 text-menu"></i>
                             <span class="nav-link-text">Dashboard</span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {{$a == 'Invoices' ? 'active' : ''}}" href="{{url('/invoices')}}">
+                        <a class="nav-link {{$a == 'Invoices' ? 'active' : ''}}" href="{{url('/admin_invoices')}}">
                             <i class="ni ni-bullet-list-67 text-menu"></i>
-                            <span class="nav-link-text">My Invoices</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{$a == 'My Drafts' ? 'active' : ''}}" href="{{url('/draft_invoices')}}">
-                            <i class="ni ni-archive-2 text-menu"></i>
-                            <span class="nav-link-text">My Drafts</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{$a == 'New Invoice' ? 'active' : ''}}" href="{{url('/new_invoice')}}">
-                            <i class="ni ni-fat-add text-menu"></i>
-                            <span class="nav-link-text">Create new invoice</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{$a == 'Clients' ? 'active' : ''}}" href="{{url('/clients')}}">
-                            <i class="ni ni-circle-08 text-menu"></i>
-                            <span class="nav-link-text">Clients</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{$a == 'Profile' ? 'active' : ''}}" href="{{url('/profile')}}">
-                            <i class="ni ni-single-02 text-menu"></i>
-                            <span class="nav-link-text">Profile</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{$a == 'Plan & Payment' ? 'active' : ''}}" href="{{url('/payments')}}">
-                            <i class="ni ni-credit-card text-menu"></i>
-                            <span class="nav-link-text">Plan & Payment</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {{$a == 'Support' ? 'active' : ''}}" href="{{url('/support')}}">
-                            <i class="ni ni-headphones text-menu"></i>
-                            <span class="nav-link-text">Support</span>
+                            <span class="nav-link-text"> Invoices</span>
                         </a>
                     </li>
 
                     <li class="nav-item" >
-                        <a class="nav-link" href="{{url('/logout')}}" id="logout-btn">
+                        <a class="nav-link" href="{{url('/admin_logout')}}" id="logout-btn">
                             <i class="ni ni-button-power text-menu"></i>
                             <span class="nav-link-text">Logout</span>
                         </a>
@@ -272,32 +238,10 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <!-- Search form -->
 
-                @if(!auth()->user()->plan_id || auth()->user()->plan_id == 1)
-                    <a style="margin-right: 5px" href="{{url('/plans')}}"><button class="btn btn-sm " style="background-color: #F0827E;margin-left: 5px;color:#fff">
-                            Upgrade to PRO
-                        </button></a>
-                @endif
                 <h6 class="h2 text-white d-inline-block mb-0" style="margin-right: 5px">Welcome {{auth()->user()->fname}}! </h6>
 
-                <form class="navbar-search navbar-search-light form-inline mr-sm-3" id="navbar-search-main">
-                    <div class="form-group mb-0">
-                        <div class="input-group input-group-alternative input-group-merge">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="fas fa-search"></i></span>
-                            </div>
-                            <input class="form-control" placeholder="Search" type="text" id="search">
-                        </div>
-                    </div>
-                    <button type="button" class="close" data-action="search-close" data-target="#navbar-search-main" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </form>
 
 
-                <!-- Navbar links -->
-                <a href="{{url('/new_invoice')}}"><button class="btn btn-sm " style="background-color: #F0827E;margin-left: 5px;color:#fff">
-                        + Create new Invoice
-                    </button></a>
                 <ul class="navbar-nav align-items-center  ml-md-auto ">
                     <li class="nav-item d-xl-none">
                         <!-- Sidenav toggler -->
@@ -317,10 +261,9 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="ni ni-bell-55"
-
-                               @if(count($notifications->where('read',0)))
-                               style="color: red"
-                                @endif
+                            @if(count($notifications->where('read',0)))
+                            style="color: red"
+                            @endif
                             ></i>
                         </a>
                         <div class="dropdown-menu dropdown-menu-xl  dropdown-menu-right  py-0 overflow-hidden">
@@ -330,25 +273,25 @@
                             </div>
                             <!-- List group -->
                             @foreach($notifications as $notification)
-                                <div class="list-group list-group-flush">
-                                    <a href="{{url('admin_notification_read_'.$notification->id)}}" class="list-group-item list-group-item-action">
-                                        <div class="row align-items-center">
-                                            <div class="col ml--2">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <div>
-                                                        <h4 class="mb-0 text-sm">{{$notification->title}}</h4>
-                                                    </div>
-                                                    <div class="text-right text-muted">
-                                                        <small>{{$notification->created_at->diffForHumans()}}</small>
-                                                    </div>
+                            <div class="list-group list-group-flush">
+                                <a href="{{url('admin_notification_read_'.$notification->id)}}" class="list-group-item list-group-item-action">
+                                    <div class="row align-items-center">
+                                        <div class="col ml--2">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <h4 class="mb-0 text-sm">{{$notification->title}}</h4>
                                                 </div>
-                                                <p class="text-sm mb-0">{{$notification->data}}</p>
+                                                <div class="text-right text-muted">
+                                                    <small>{{$notification->created_at->diffForHumans()}}</small>
+                                                </div>
                                             </div>
+                                            <p class="text-sm mb-0">{{$notification->data}}</p>
                                         </div>
-                                    </a>
-                                </div>
+                                    </div>
+                                </a>
+                            </div>
                             @endforeach
-                        <!-- View all -->
+                            <!-- View all -->
                         </div>
                     </li>
                 </ul>
@@ -370,25 +313,9 @@
                                 <h6 class="text-overflow m-0">Welcome!</h6>
                             </div>
 
-                            <a href="{{url('/invoices')}}" class="dropdown-item">
+                            <a href="{{url('/admin_invoices')}}" class="dropdown-item">
                                 <i class="ni ni-bullet-list-67 text-menu"></i>
-                                <span>My Invoices</span>
-                            </a>
-                            <a href="{{url('/draft_invoices')}}" class="dropdown-item">
-                                <i class="ni ni-archive-2 text-menu"></i>
-                                <span>My Drafts</span>
-                            </a>
-                            <a href="{{url('/new_invoice')}}" class="dropdown-item">
-                                <i class="ni ni-fat-add text-menu"></i>
-                                <span>Create new invoice</span>
-                            </a>
-                            <a href="{{url('/clients')}}" class="dropdown-item">
-                                <i class="ni ni-circle-08 text-menu"></i>
-                                <span>Clients</span>
-                            </a>
-                            <a href="{{url('/profile')}}" class="dropdown-item">
-                                <i class="ni ni-single-02 text-menu"></i>
-                                <span>Profile</span>
+                                <span> Invoices</span>
                             </a>
                             <div class="dropdown-divider"></div>
 

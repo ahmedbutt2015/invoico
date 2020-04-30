@@ -21,12 +21,12 @@
 
 body, html {
 	height: 100%;
-	font-family: Open Sans, sans-serif, sans-serif;
+	font-family: Source Sans Pro;
 }
 
 /*---------------------------------------------*/
 a {
-	font-family: Open Sans, sans-serif;
+	font-family: Source Sans Pro;
 	font-size: 14px;
 	line-height: 1.7;
 	color: #666666;
@@ -43,7 +43,7 @@ a:focus {
 
 a:hover {
 	text-decoration: none;
-  color: #F0827E;
+  color: #F0827E !important;
 }
 
 /*---------------------------------------------*/
@@ -52,7 +52,7 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 p {
-	font-family: Open Sans, sans-serif;
+	font-family: Source Sans Pro;
 	font-size: 14px;
 	line-height: 1.7;
 	color: #666666;
@@ -119,14 +119,14 @@ iframe {
 /*//////////////////////////////////////////////////////////////////
 [ Utility ]*/
 .txt1 {
-  font-family: Open Sans, sans-serif;
+  font-family: Source Sans Pro;
   font-size: 13px;
   line-height: 1.5;
   color: #999999;
 }
 
 .txt2 {
-  font-family: Open Sans, sans-serif;
+  font-family: Source Sans Pro;
   font-size: 13px;
   line-height: 1.5;
   color: #666666;
@@ -308,7 +308,7 @@ iframe {
 }
 
 .login100-form-btn {
-  font-family: Montserrat-Bold;
+  font-family: Source Sans Pro;
   font-size: 15px;
   line-height: 1.5;
   color: #fff;

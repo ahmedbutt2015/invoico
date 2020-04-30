@@ -1,47 +1,14 @@
-@extends('dashboard',['a' => 'Invoices'])
+@extends('dashboard',['a' => 'My Drafts'])
 @section('body')
     <div class="row">
         <div class="col">
             <div class="card">
                 <!-- Card header -->
-                <form action="">
-                   <div class="row">
-                       <div class="col-lg-3">
-                           <div class="form-group">
-                               <label class="form-control-label" for="input-city">Clients</label>
-                               <select name="client_id" class="form-control" id="">
-                                   <option value="">Select Client</option>
-                                   @foreach($clients as $client)
-                                       <option value="{{$client->id}}">{{$client->name}}</option>
-                                   @endforeach
-                               </select>
-                           </div>
-                       </div>
-                       <div class="col-lg-3">
-                           <div class="form-group">
-                               <label class="form-control-label" for="input-city">Invoice Type</label>
-                               <select name="type" class="form-control" id="">
-                                   <option value="">Select Type</option>
-                                   <option value="pending">Pending</option>
-                                   <option value="send">Send</option>
-                                   <option value="paid">Paid</option>
-                                   <option value="overdue">Overdue</option>
-                               </select>
-                           </div>
-                       </div>
-                       <div class="col-lg-2">
-                           <div class="form-group">
-                               <label class="form-control-label" for="input-city"> </label>
-                               <button class="btn btn-lg btn-primary form-control" name="subBtn" style="background-color: #5354CE !important;">Update</button>
-                           </div>
-                       </div>
-                   </div>
-                </form>
                 <div class="card-header border-0">
-                    <h3 class="mb-0">Invoices</h3>
+                    <h3 class="mb-0">My Drafts</h3>
                 </div>
                 <!-- Light table -->
-                <div class="table-responsive">
+                <div class="table-responsive" style="min-height: 200px">
                     <table class="table align-items-center table-flush">
                         <thead class="thead-light">
                         <tr>
@@ -85,8 +52,8 @@
                                             <a class="dropdown-item" href="{{url('/invoice_'.$invoice->id)}}">View</a>
                                             @if(!$invoice->final)
                                             <a class="dropdown-item" href="{{url('/edit_invoice_'.$invoice->id)}}">Edit</a>
-                                            <a class="dropdown-item" href="#">Delete</a>
                                             @endif
+                                            <a class="dropdown-item" href="#">Delete</a>
                                         </div>
                                     </div>
                                 </td>

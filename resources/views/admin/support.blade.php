@@ -65,7 +65,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <form method="post">
+                    <form method="get">
                         {{csrf_field()}}
                         <div class="pl-lg-6">
                             <div class="pl-lg-4">

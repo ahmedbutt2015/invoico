@@ -42,7 +42,7 @@
                 <a data-toggle="modal" data-target="#addClient" >
                     <div class="button button--blue-inverted m-v-sm">
                         <!--                <img src="img/icon_file_sm.svg" width="10" height="10" alt="file" class="m-r-sm">-->
-                        <span style="color: #5354CE">+ add new client</span>
+                        <span style="color: #5354CE">+ new cLient</span>
                     </div>
                 </a>
                 <div style="flex: 1 0 10px;"></div>

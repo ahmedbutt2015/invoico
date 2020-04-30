@@ -5,12 +5,15 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 <!--===============================================================================================-->
-	<link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+    <link rel="icon" href="/images/icons/favi.png" type="image/png">
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
-<!--===============================================================================================-->
+    <link rel="stylesheet" href="https://fonts.google.com/specimen/Roboto">
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
+
+    <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
@@ -19,7 +22,8 @@
 <!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="css/util.css">
 	<link rel="stylesheet" type="text/css" href="css/main.css">
-<!--===============================================================================================-->
+
+    <!--===============================================================================================-->
 </head>
 <body>
 
@@ -76,8 +80,8 @@
 					</div>
 
 					<div class="wrap-input100 validate-input" data-validate = "Terms is required">
-                        <b>Accept terms and conditions.</b><br>
-                        I accept: <input  class="input" type="checkbox" value="0" name="terms">
+                       <span class="txt2"> Accept terms and conditions.<br>
+                           I accept: </span><input  class="input" type="checkbox" value="0" name="terms">
 					</div>
                     @if(isset($errors) && count($errors->all()))
                         <div class="errors alert alert-dismissible fade show alert-danger" role="alert">

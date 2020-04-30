@@ -19,29 +19,20 @@ Route::group(['middleware' => 'guest'], function () {
     });
 
 
-    Route::get('/plans', function () {
-        $plans = Plan::all();
-        return view('plans',compact("plans"));
-    });
 
-    Route::get('/payment-{plan}', function (\App\Plan $plan) {
-        return view('payment',compact('plan'));
-    });
-
-    Route::get('/register-{plan}', function (\App\Plan $plan) {
+    Route::get('/register', function () {
         $token = request()->get("_token",'');
-        if ($plan->id != 1) {
-            $result = \App\Payment::checkPayment($token);
-            if ($result) {
-                return view('register', compact('token'));
-            } else {
-                return redirect("/payment-".$plan->id);
-            }
-        }
+//        if ($plan->id != 1) {
+//            $result = \App\Payment::checkPayment($token);
+//            if ($result) {
+//                return view('register', compact('token'));
+//            } else {
+//                return redirect("/payment-".$plan->id);
+//            }
+//        }
         return view('register', compact('token'));
     });
 
-    Route::post('/payment-{plan}', 'AuthController@postPayment');
     Route::post('/register', 'AuthController@postRegister');
     Route::post('/login', 'AuthController@postLogin');
 
@@ -73,6 +64,82 @@ Route::group(['middleware' => 'guest'], function () {
     });
 });
 Route::group(['middleware' => 'auth'], function () {
+
+    Route::get('/admin_notification_read_{id}', function($id) {
+        $n = \App\Notification::find($id);
+        $n->read = 1;
+        $n->save();
+        if(!$n->url){
+            return redirect('/');
+        }
+        if(auth()->user()->is_admin){
+            return redirect('/admin_invoice_'.$n->url);
+        }        return redirect('/invoice_'.$n->url);
+
+    });
+    Route::get('/admin', function() {
+        $invoices = \App\Invoice::where('final','1')->get();
+        $total_users = \App\User::where('is_admin',0)->count();
+        $users = \App\User::selectRaw('count(id) as total,plan_id')->where('is_admin',0)->groupBy('plan_id')->get();
+        $payments = \App\Payment::selectRaw('sum(amount) as tamount,plan_id')->groupBy('plan_id')->get();
+        return view('admin.home',compact('total_users','payments','invoices','users'));
+    });
+
+    Route::post('admin_invoice_status', function (\Illuminate\Http\Request $request) {
+
+        $invoice = \App\Invoice::find($request->invoice_id);
+        if($invoice){
+            $invoice->status = $request->invoice_type;
+            $invoice->save();
+
+            \App\Notification::create([
+                'user_id' => $invoice->user_id,
+                'title' => 'Invoice status changed',
+                'data' => $invoice->invoice_num . ' status changed to ' .$invoice->status,
+                'url' => $invoice->id
+            ]);
+        }
+        return back();
+    });
+
+    Route::get('admin_invoice_status_update_job', function (\Illuminate\Http\Request $request) {
+        $invoices = \App\Invoice::whereRaw('json_extract(data, "$.date_due") < ?',[date('Y-m-d')])
+            ->where('status','<>','paid')->get();
+        foreach ($invoices as $invoice) {
+            $invoice->status = 'overdue';
+            $invoice->save();
+        }
+    });
+    Route::get('admin_invoices', function (\Illuminate\Http\Request $request) {
+        $invoices = \App\Invoice::when($request->user_id,function ($q) use ($request) {
+            return $q->where('user_id',$request->user_id);
+        });
+        if($request->client_id){
+            $invoices->where('client_id','=',$request->client_id);
+        }
+        if($request->type){
+            $invoices->where('status','=',$request->type);
+        }
+        $invoices = $invoices->orderBy('id','DESC')->get();
+
+        $clients = \App\Client::get();
+        $users = \App\User::where('is_admin',0)->get();
+        return view('admin.invoices',compact('clients','invoices','users'));
+    });
+
+    Route::get('/plans', function () {
+        $plans = Plan::all();
+        return view('plans2',compact("plans"));
+    });
+
+
+    Route::get('/payment-{plan}', function (\App\Plan $plan) {
+        $user = auth()->user();
+        return view('payment2',compact('user','plan'));
+    });
+    Route::post('/payment-{plan}', 'AuthController@postPayment');
+    Route::get('/endplan', 'AuthController@endPlan');
+
     Route::get('/', function () {
         $invoices = \App\Invoice::where('user_id',auth()->id())->where('final','1')->get();
         $paid_amount = $invoices->where('status','paid')->sum('total');
@@ -86,6 +153,13 @@ Route::group(['middleware' => 'auth'], function () {
         }
         $graph_data = DB::select("select sum(total) as total, created_at as new_date, YEAR(created_at) year, MONTH(created_at) month from `invoices` where `user_id` = ? group by `year`, `month`",[auth()->id()]);
         $graph2_data = DB::select("select sum(total) as total, created_at as new_date, YEAR(created_at) year, MONTH(created_at) month from `invoices` where status = 'paid' and`user_id` = ? group by `year`, `month`",[auth()->id()]);
+        if(count($graph2_data)){
+            $a = [(object)[
+                "total" => 0,
+                "new_date" => date('Y-m-d',strtotime('-1 month',strtotime($graph2_data[0]->new_date)))
+            ]];
+            $graph2_data = array_merge($a,$graph2_data);
+        }
         $clients = \App\Client::select('*')
             ->selectRaw('(select IFNULL(sum(total),0) from invoices where invoices.client_id=clients.id) as invoice_total')
             ->orderBy('invoice_total','desc')
@@ -117,10 +191,13 @@ Route::group(['middleware' => 'auth'], function () {
         $invoices = \App\Invoice::where('user_id',auth()->id())->where('status','=','draft')->get();
             return view('draftinvoices',compact('invoices'));
     });
-    Route::get('/new_invoice', function () {
-        $clients = \App\Client::where('user_id',auth()->id())->get();
+    Route::group(['middleware' => 'invoice'], function () {
+        Route::get('/new_invoice', function () {
+            $clients = \App\Client::where('user_id',auth()->id())->get();
+            return view('newInvoice',compact('clients'));
+        });
+        Route::post('/new_invoice', 'InvoiceController@add');
 
-        return view('newInvoice',compact('clients'));
     });
     Route::get('/clients', function () {
         $clients = \App\Client::where('user_id',auth()->id())->get();
@@ -143,17 +220,32 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/support', function () {
         return view('support');
     });
+    Route::get('/plan2', function () {
+        return view('plans2');
+    });
     Route::post('/profile', 'AuthController@update');
     Route::post('/update-plan', 'AuthController@updatePlan');
-    Route::post('/new_invoice', 'InvoiceController@add');
     Route::post('/add_client', 'InvoiceController@add_client');
     Route::post('/edit_client', 'InvoiceController@edit_client');
     Route::get('/del_client/{id}', 'InvoiceController@del_client');
     Route::get('/edit_invoice_{id}', 'InvoiceController@edit');
+    Route::post('/delete_invoice_{id}', 'InvoiceController@delete');
+    Route::get  ('/delete_invoice_{id}', 'InvoiceController@delete');
     Route::get('/invoice_{id}', 'InvoiceController@view');
+    Route::get('/admin_invoice_{id}', 'InvoiceController@adminview');
     Route::post('/edit_invoice_{id}', 'InvoiceController@update');
 
     Route::get('/logout', 'AuthController@postLogout');
+    Route::get('/admin_logout', 'AuthController@postLogout');
 
+
+    Route::post('/support', function (\Illuminate\Http\Request $request) {
+        $email = $request->aboutme;
+        Mail::send('emails.support', ["msg"=>$email], function($message) use ($email) {
+            $message->to('rasmus@scheuer-larsen.com', 'Support User')->subject
+            ('Support ');
+        });
+        return back()->withErrors('Message send successfully.');
+    });
 });
 

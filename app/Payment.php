@@ -11,11 +11,15 @@ class Payment extends Model
     protected $primaryKey = "id";
     protected $table = "payment_histories";
     protected $guarded = [];
+    public function plan(){
+        return $this->belongsTo('App\Plan');
+    }
     public static function AddPayment($data, $user_id)
     {
         return self::create([
             "user_id" => $user_id,
             "amount" => $data['amount'],
+            "plan_id" => $data['plan_id'],
             "card_number" => $data['card_number'],
             "cvc" => $data["cvc"],
             "month" => $data['month'],
@@ -45,7 +49,7 @@ class Payment extends Model
 
             $charge = $stripe->charges()->create([
                 'card' => $token['id'],
-                'currency' => "USD",
+                'currency' => "DKK",
                 'amount' => $amount,
                 'description' => $description,
             ]);

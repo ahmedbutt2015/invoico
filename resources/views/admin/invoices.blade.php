@@ -1,4 +1,4 @@
-@extends('dashboard',['a' => 'Invoices'])
+@extends('admin.dashboard',['a' => 'Invoices'])
 @section('body')
     <div class="row">
         <div class="col">
@@ -13,6 +13,17 @@
                                    <option value="">Select Client</option>
                                    @foreach($clients as $client)
                                        <option value="{{$client->id}}">{{$client->name}}</option>
+                                   @endforeach
+                               </select>
+                           </div>
+                       </div>
+                       <div class="col-lg-3">
+                           <div class="form-group">
+                               <label class="form-control-label" for="input-city">Users</label>
+                               <select name="user_id" class="form-control" id="">
+                                   <option value="">Select User</option>
+                                   @foreach($users as $client)
+                                       <option value="{{$client->id}}">{{$client->email}}</option>
                                    @endforeach
                                </select>
                            </div>
@@ -56,7 +67,8 @@
                         </thead>
                         <tbody class="list">
                         @foreach($invoices as $invoice)
-                            <tr>
+                            <tr class="rowParent">
+                                <th scope="row"  style="display: none" data-id="cid">{{$invoice->id}}</th>
                                 <th scope="row">
                                     {{$loop->index+1}}
                                 </th>
@@ -82,11 +94,9 @@
                                             <i class="fas fa-ellipsis-v"></i>
                                         </a>
                                         <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                                            <a class="dropdown-item" href="{{url('/invoice_'.$invoice->id)}}">View</a>
-                                            @if(!$invoice->final)
-                                            <a class="dropdown-item" href="{{url('/edit_invoice_'.$invoice->id)}}">Edit</a>
-                                            <a class="dropdown-item" href="#">Delete</a>
-                                            @endif
+                                            <a class="dropdown-item" href="{{url('/admin_invoice_'.$invoice->id)}}">View</a>
+                                            <a class="dropdown-item editBtn" href="#" data-id="editBtn" data-toggle="modal" data-target="#editClient">Update Status</a>
+
                                         </div>
                                     </div>
                                 </td>
@@ -100,6 +110,50 @@
             </div>
         </div>
     </div>
+    <div class="modal" id="editClient" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Update Status</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{url('admin_invoice_status')}}" method="post">
+
+                    <input type="hidden" id="idd" name="id">
+                    <input type="hidden" id="" name="user_id" value="{{auth()->id()}}">
+                    <input type="hidden" id="invoice_id" name="invoice_id" value="">
+
+                    <div class="modal-body">
+                        <div class="form-group mb-3">
+                            <label class="form-control-label" for="input-city">Invoice Type</label>
+                            <select name="invoice_type" class="form-control" id="">
+                                <option value="">Select Type</option>
+                                <option value="pending">Pending</option>
+                                <option value="send">Send</option>
+                                <option value="paid">Paid</option>
+                                <option value="overdue">Overdue</option>
+                            </select>
+                        </div>
+                        {{csrf_field()}}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Update changes</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
 
 
+@endsection
+@section('script')
+    <script>
+        $(".editBtn").click(function(){
+            $("#invoice_id").val($(this).parents('.rowParent').find("[data-id='cid']").html())
+        })
+    </script>
 @endsection
